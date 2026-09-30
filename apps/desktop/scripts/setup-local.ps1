@@ -44,7 +44,7 @@ try {
     if ($running) { throw 'Close Desktop running from this repository, then run setup-desktop.cmd again.' }
 
     $manifest = Get-Content -LiteralPath (Join-Path $repoRoot 'package.json') -Raw | ConvertFrom-Json
-    $runtimeLock = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'primary-runtime-lock.json') -Raw | ConvertFrom-Json
+    $runtimeLock = Get-Content -LiteralPath (Join-Path $repoRoot 'scripts/primary-runtime/lock.json') -Raw | ConvertFrom-Json
     $nodeVersion = $runtimeLock.nodeVersion
     if ($nodeVersion -notmatch '^\d+\.\d+\.\d+$' -or $manifest.packageManager -notmatch '^pnpm@(\d+\.\d+\.\d+)$') {
         throw 'Desktop setup requires exact Node and pnpm versions in the repository manifests.'
@@ -60,7 +60,7 @@ try {
         $archive = Join-Path $toolsRoot "$nodeFolder.zip"
         Invoke-WebRequest -UseBasicParsing -Uri "https://nodejs.org/dist/v$nodeVersion/$nodeFolder.zip" -OutFile $archive
         if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash -ne $runtimeLock.targets.'win-x64'.nodeSha256) {
-            throw 'Node archive checksum does not match primary-runtime-lock.json. Run setup again to retry the download.'
+            throw 'Node archive checksum does not match scripts/primary-runtime/lock.json. Run setup again to retry the download.'
         }
         Expand-Archive -LiteralPath $archive -DestinationPath $toolsRoot -Force
         New-Item -ItemType File -Force -Path $nodeReady | Out-Null
