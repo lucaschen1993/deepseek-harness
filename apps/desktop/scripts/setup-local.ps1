@@ -1,6 +1,6 @@
-# Prepare repository-local Windows build tools and launch the Desktop development profile.
+# Prepare repository-local Windows build tools for Desktop development or packaging.
 [CmdletBinding()]
-param()
+param([switch]$Package)
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
@@ -43,6 +43,14 @@ try {
     }
     if ($running) { throw 'Close Desktop running from this repository, then run setup-desktop.cmd again.' }
 
+    if ($Package) {
+        $settings = Join-Path $repoRoot 'apps/desktop/.env.windows'
+        if (-not (Test-Path -LiteralPath $settings)) {
+            Copy-Item -LiteralPath ($settings + '.example') -Destination $settings
+            throw "Created $settings from the template. Fill in the application ID, deployment, mandatory policy service and login origins, then run package-desktop.cmd again. Existing packaging requirements still apply."
+        }
+    }
+
     $manifest = Get-Content -LiteralPath (Join-Path $repoRoot 'package.json') -Raw | ConvertFrom-Json
     $runtimeLock = Get-Content -LiteralPath (Join-Path $repoRoot 'scripts/primary-runtime/lock.json') -Raw | ConvertFrom-Json
     $nodeVersion = $runtimeLock.nodeVersion
@@ -84,10 +92,14 @@ try {
     try {
         Write-Host '[3/4] Installing workspace dependencies from pnpm-lock.yaml...'
         Invoke-Checked $node @($pnpm, 'install', '--frozen-lockfile')
-        Write-Host '[4/4] Building and starting Desktop. First launch downloads Python and Office dependencies.'
-        if (-not $env:DSH_DESKTOP_OPEN_DEVTOOLS) { $env:DSH_DESKTOP_OPEN_DEVTOOLS = '0' }
         $env:ELECTRON_RUN_AS_NODE = $null
-        Invoke-Checked $node @($pnpm, 'run', 'dev:desktop')
+        if ($Package) {
+            & (Join-Path $PSScriptRoot 'package-local.ps1') -Node $node -Pnpm $pnpm
+        } else {
+            Write-Host '[4/4] Building and starting Desktop. First launch downloads Python and Office dependencies.'
+            if (-not $env:DSH_DESKTOP_OPEN_DEVTOOLS) { $env:DSH_DESKTOP_OPEN_DEVTOOLS = '0' }
+            Invoke-Checked $node @($pnpm, 'run', 'dev:desktop')
+        }
     } finally {
         Pop-Location
     }

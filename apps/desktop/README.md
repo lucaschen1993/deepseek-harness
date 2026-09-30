@@ -317,6 +317,10 @@ Apple tooling uses the active macOS network service's HTTP/HTTPS proxies. Config
 
 ### Unsigned Windows test installer
 
+Double-click [package-desktop.cmd](../../package-desktop.cmd) at the repository root to prepare local Node/pnpm, install locked dependencies, prepare Python, and invoke the existing unsigned Windows packaging command. The first run creates `.env.windows` from its template if missing and stops for configuration; fill in the application ID, deployment, mandatory policy service, and test login origins before retrying. The launcher asks for the complete build version, validates it with the existing version rules, runs packaging preflight, and prints the installer path only after packaging succeeds. Setup and packaging share a lock; close the development launcher before packaging.
+
+If Visual Studio C++ tools are missing, the launcher requests their installation through winget; Windows may require administrator permission, license acceptance, or a restart. Install Windows App Installer or the C++ tools manually if winget is unavailable. Service URLs and credentials remain local, and packaging retains the existing login, mandatory-update policy, and startup behavior. Logs use the setup log directory. This wrapper does not sign or upload artifacts; full EXE validation requires a configured policy service and packaging host.
+
 On Windows x64, use the complete unsigned packaging command for local installation testing:
 
 ```sh
