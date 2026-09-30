@@ -77,6 +77,10 @@ Recovery waits for Host shutdown before changing plugin activation. The native r
 
 ## Develop
 
+On Windows x64, clone the repository with Git for Windows and double-click [setup-desktop.cmd](../../setup-desktop.cmd) in the repository root. The script downloads and verifies the pinned Node archive, installs the pinned pnpm locally, installs workspace dependencies with the frozen lockfile, and runs `dev:desktop` with detached DevTools disabled by default. Windows PowerShell 5.1 and network access to the dependency download hosts are required; no administrator access or global Node/pnpm installation is needed. Close Desktop from this checkout before running setup again, including after pulling branch updates.
+
+Setup tools and logs stay under `apps/desktop/.desktop-build/bootstrap` and `apps/desktop/.desktop-build/logs`, which Git ignores. Keep the launcher console open while Desktop runs; failures keep it open with the error and log location. On another computer, clone the branch and run the same script; local sessions, credentials, downloaded tools, and build outputs are not transferred by Git. Model access still requires configuration in the application.
+
 `dev:desktop` builds the current Host, client bundles, Web frontend, and Electron shell, projects the built CLI and private Desktop Host packages with their workspace dependencies into a disposable desktop npm project, and launches Electron without resolving dsh from npm:
 
 ```sh

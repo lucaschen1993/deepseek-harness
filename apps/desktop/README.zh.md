@@ -78,6 +78,10 @@ macOS 上自定义应用菜单还会声明标准的 File、Window 和应用菜�
 
 ## 开发
 
+在 Windows x64 上，用 Git for Windows 克隆仓库后，双击仓库根目录的 [setup-desktop.cmd](../../setup-desktop.cmd)。脚本下载并校验锁定版本的 Node，在本地安装指定版本的 pnpm，按冻结的锁文件安装 workspace 依赖，然后运行 `dev:desktop`，默认不打开独立 DevTools 窗口。需要 Windows PowerShell 5.1，以及访问依赖下载站点的网络；无需管理员权限，也无需全局安装 Node/pnpm。再次运行前请关闭这份仓库启动的 Desktop，拉取分支更新后也一样。
+
+安装工具和日志保存在 Git 忽略的 `apps/desktop/.desktop-build/bootstrap` 与 `apps/desktop/.desktop-build/logs` 中。Desktop 运行期间请保留启动控制台；失败时控制台会保持打开，显示错误和日志位置。换电脑后，克隆分支并运行同一脚本即可；本地会话、凭据、下载的工具和构建产物不会随 Git 转移。模型访问仍需在应用内配置。
+
 `dev:desktop` 会构建当前 Host、客户端 bundle、Web 前端和 Electron 壳，把已构建的 CLI 包、私有 Desktop Host 包及其 workspace 依赖投影为一次性桌面 npm 项目，然后直接启动 Electron；这条路径不从 npm 解析 dsh：
 
 ```sh
